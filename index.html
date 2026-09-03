@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>中国各大水系代表性古渡口</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", sans-serif; }
+html, body { height: 100%; overflow: hidden; }
+
+#header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+  color: #fff;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+  position: relative;
+}
+#header .title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#header h1 { font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+#header .subtitle { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+#filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+#filter-bar button {
+  padding: 5px 12px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 16px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+#filter-bar button.active {
+  background: rgba(255,255,255,0.3);
+  border-color: #fff;
+  font-weight: 600;
+}
+
+#map { width: 100%; height: calc(100vh - 90px); }
+
+.amap-info-content { padding: 0 !important; }
+.amap-info-outer {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+  border-radius: 14px;
+  overflow: hidden;
+  max-width: 90vw !important;
+}
+.amap-info-sharp { display: none; }
+.amap-info-close {
+  width: 28px !important;
+  height: 28px !important;
+  top: 8px !important;
+  right: 8px !important;
+}
+
+.popup-card { font-family: "Microsoft YaHei", "PingFang SC", sans-serif; }
+.popup-header { padding: 14px 16px; color: #fff; padding-right: 40px; }
+.popup-header h3 { font-size: 16px; margin-bottom: 4px; }
+.popup-header .tag {
+  display: inline-block; padding: 2px 10px; border-radius: 10px;
+  background: rgba(255,255,255,0.25); font-size: 11px;
+}
+.popup-body { padding: 12px 16px 16px; max-height: 50vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.popup-body .info-row { display: flex; margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+.popup-body .info-row .label { flex-shrink: 0; width: 36px; color: #888; font-weight: 600; }
+.popup-body .section-title {
+  font-size: 13px; font-weight: 700; color: #1a3a5c;
+  margin: 10px 0 5px; padding-bottom: 4px; border-bottom: 2px solid #e8edf2;
+}
+.popup-body .desc { font-size: 12.5px; line-height: 1.7; color: #444; text-align: justify; }
+.popup-body .keywords { margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap; }
+.popup-body .keywords span {
+  padding: 2px 8px; background: #e8f0fe; color: #2d6a9f; border-radius: 10px; font-size: 11px;
+}
+
+.color-长江干流 { background: linear-gradient(135deg, #1e5799, #2989d8); }
+.color-长江支流 { background: linear-gradient(135deg, #1a8a5c, #2dbc80); }
+.color-珠江水系 { background: linear-gradient(135deg, #7b2d8e, #a855c7); }
+.color-黄河水系 { background: linear-gradient(135deg, #b8860b, #daa520); }
+.color-淮河水系 { background: linear-gradient(135deg, #c0392b, #e74c3c); }
+
+#legend {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  z-index: 999;
+  font-size: 11px;
+}
+#legend .legend-title { font-weight: 700; color: #1a3a5c; margin-bottom: 6px; font-size: 12px; }
+#legend .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: #555; }
+#legend .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+@media (max-width: 600px) {
+  #header { padding: 10px 12px; }
+  #header h1 { font-size: 15px; }
+  #header .subtitle { font-size: 11px; }
+  #filter-bar { gap: 4px; margin-top: 8px; }
+  #filter-bar button { padding: 4px 10px; font-size: 11px; }
+  #map { height: calc(100vh - 80px); }
+  .popup-header h3 { font-size: 15px; }
+  .popup-body { max-height: 45vh; padding: 10px 14px 14px; }
+  .popup-body .desc { font-size: 12px; }
+  #legend { bottom: 10px; left: 10px; padding: 8px 10px; font-size: 10px; }
+  #legend .legend-title { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="title-row">
+    <div>
+      <h1>中国各大水系代表性古渡口</h1>
+      <div class="subtitle">12处历史渡口 · 五大水系 · 点击标记查看详情</div>
+    </div>
+  </div>
+  <div id="filter-bar">
+    <button class="active" data-filter="all">全部</button>
+    <button data-filter="长江干流">长江干流</button>
+    <button data-filter="长江支流">长江支流</button>
+    <button data-filter="珠江水系">珠江水系</button>
+    <button data-filter="黄河水系">黄河水系</button>
+    <button data-filter="淮河水系">淮河水系</button>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<div id="legend">
+  <div class="legend-title">图例</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2989d8"></div>长江干流</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2dbc80"></div>长江支流</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a855c7"></div>珠江水系</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#daa520"></div>黄河水系</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>淮河水系</div>
+</div>
+
+<script type="text/javascript">
+  window._AMapSecurityConfig = {
+    securityJsCode: 'cb6ab4fc038108a40234b79ea221f14f'
+  };
+</script>
+<script src="https://webapi.amap.com/maps?v=2.0&key=bf2928174e282eb611376287cde11f58"></script>
+<script>
+const ferryData = [
+  {
+    name: "弹子石渡口", system: "长江干流", city: "重庆·南岸",
+    lat: 29.5630, lng: 106.5870, tag: "商贸关隘遗址渡口",
+    location: "长江干流南岸，重庆市南岸区南滨路，正对朝天门",
+    history: "传大禹治水归途经此，涂山氏化石诞启，名诞子石，被视为重庆最早的渡江码头；清代王家沱为盐运商埠，1891年重庆开埠、1901年日本强租王家沱设租界；1938年重庆轮渡开航，弹子石为重要过江码头。",
+    status: "遗存未淹没，码头在原址运营；弹子石老街2018年重建开街（国家4A景区），老码头转型两江小渡观光轮渡。",
+    keywords: ["两江交汇", "盐运开埠", "文旅活化"]
+  },
+  {
+    name: "寸滩古渡", system: "长江干流", city: "重庆·江北",
+    lat: 29.6100, lng: 106.6350, tag: "淹没遗址纪念渡口",
+    location: "长江干流北岸，重庆市江北区寸滩街道",
+    history: "因江中石梁形如秤杆得名秤滩，方言谐音为寸滩；清嘉庆年间建场镇，明清为连通川东北的西南第一渡口。",
+    status: "遗存未淹没，但老街基本拆迁成废墟；寸滩已建为重庆最大保税港区。",
+    keywords: ["西南第一渡口", "至善桥"]
+  },
+  {
+    name: "瓜洲古渡", system: "长江干流", city: "江苏·扬州",
+    lat: 32.2330, lng: 119.3500, tag: "淹没遗址纪念渡口",
+    location: "长江干流北岸，江苏省扬州市邗江区瓜洲镇",
+    history: "晋代长江沙洲淤积成瓜字形陆洲得名；唐宋为漕运要冲；王安石京口瓜洲一水间、白居易流到瓜洲古渡头。",
+    status: "清光绪二十一年（1895）古瓜洲城因长江坍江全部沉入江底；今瓜洲镇为1964年重建。",
+    keywords: ["诗渡", "整城沉江", "运河入江"]
+  },
+  {
+    name: "汉阳门码头", system: "长江干流", city: "湖北·武汉",
+    lat: 30.5450, lng: 114.3050, tag: "库区迁建民生渡口",
+    location: "长江干流南岸，湖北省武汉市武昌区临江大道",
+    history: "原武昌古城九门之一西水门；1900年冯启钧创办利记轮渡为近代中国轮渡先声；1956年毛泽东在此水域横渡长江。",
+    status: "遗存未淹没，轮渡至今运营；2023年改造为可停靠5000吨级游轮的邮轮母港。",
+    keywords: ["扬子江渡", "汉阳门花园", "近代轮渡"]
+  },
+  {
+    name: "长寿岛渡口", system: "长江支流", city: "湖北·襄阳",
+    lat: 32.1100, lng: 111.9200, tag: "库区迁建民生渡口",
+    location: "长江支流汉江干流，湖北省襄阳市樊城区牛首镇",
+    history: "长寿岛原名中洲，清咸丰七年已有农民上岛垦居；1968年批复设渡，2018年升级为汽车渡口。",
+    status: "渡口改造后成为网红打卡地；岛上为长寿岛国家湿地公园，湿地近2500公顷。",
+    keywords: ["江心洲民生渡", "湿地生态"]
+  },
+  {
+    name: "太平渡", system: "长江支流", city: "四川·古蔺",
+    lat: 28.0500, lng: 105.6500, tag: "淹没遗址纪念渡口",
+    location: "长江支流赤水河上游，四川省泸州市古蔺县太平镇",
+    history: "1935年中央红军长征在此二渡、四渡赤水，是全程唯一往返两次的渡口。",
+    status: "渡口与古镇保存完好；太平古镇为国家4A景区，建有四渡赤水太平渡陈列馆。",
+    keywords: ["四渡赤水", "红色纪念", "4A景区"]
+  },
+  {
+    name: "大昌渡口", system: "长江支流", city: "重庆·巫山",
+    lat: 31.0800, lng: 109.8800, tag: "库区迁建民生渡口",
+    location: "长江支流大宁河，重庆市巫山县大昌镇",
+    history: "始建于晋，距今1700余年，素有袖珍古城之称，是三峡地区唯一保存完整的古城。",
+    status: "三峡蓄水后原址沉入水下；2002—2005年全城按原貌整体搬迁至8公里外复建。",
+    keywords: ["三峡库区", "整体搬迁", "袖珍古城"]
+  },
+  {
+    name: "白石江渡口", system: "珠江水系", city: "云南·曲靖",
+    lat: 25.5100, lng: 103.8000, tag: "淹没遗址纪念渡口",
+    location: "珠江上游南盘江支流白石江，云南省曲靖市城北",
+    history: "明洪武十四年（1381）白石江之战，明军大破元梁王，平定云南、终结西南600余年割据。",
+    status: "2007年建成白石江公园，园内设8座大型历史主题雕塑群。",
+    keywords: ["白石江之战", "平定云南", "遗址公园"]
+  },
+  {
+    name: "猎德古渡", system: "珠江水系", city: "广东·广州",
+    lat: 23.1150, lng: 113.3300, tag: "淹没遗址纪念渡口",
+    location: "珠江广州段，广东省广州市天河区猎德村",
+    history: "据宋代广州府图经，猎德涌宋代已设渡口；1985年广州大桥通车后渡口衰落。",
+    status: "码头已拆除；现为猎德涌碧道，保留龙舟文化。",
+    keywords: ["猎德通津", "龙舟文化", "碧道活化"]
+  },
+  {
+    name: "龙门古渡", system: "黄河水系", city: "山西·河津",
+    lat: 35.5800, lng: 110.7200, tag: "商贸关隘遗址渡口",
+    location: "黄河干流晋陕峡谷南端出口，山西省运城市河津市禹门口",
+    history: "禹凿龙门传说发生地；鲤鱼跃龙门典故发源地；古龙门渡为秦晋交通枢纽。",
+    status: "黄河龙门景区2022年评为国家4A景区。",
+    keywords: ["大禹凿龙门", "鲤鱼跃龙门", "4A景区"]
+  },
+  {
+    name: "会兴渡（茅津渡）", system: "黄河水系", city: "河南·三门峡",
+    lat: 34.7800, lng: 111.2000, tag: "商贸关隘遗址渡口",
+    location: "黄河干流三门峡段，河南省三门峡市湖滨区会兴镇",
+    history: "古黄河津渡，为黄河三大古渡之一；商时始设渡口；茅津夜渡典故流传。",
+    status: "三门峡黄河大桥修建后航运没落；现为三门峡城市滨水休闲区。",
+    keywords: ["黄河三大古渡", "晋盐入豫", "茅津夜渡"]
+  },
+  {
+    name: "临北古渡口", system: "淮河水系", city: "安徽·五河",
+    lat: 33.1500, lng: 117.9000, tag: "淹没遗址纪念渡口",
+    location: "淮河干流，安徽省蚌埠市五河县临北回族乡",
+    history: "明清时期淮河重要渡口与商贸码头；2008年淮河洪水淹没老街。",
+    status: "2020年11月考古发现，为迄今淮河流域唯一科学发掘的保存完好的古代码头遗址。",
+    keywords: ["淮河活化石", "考古重光", "清代码头"]
+  }
+];
+
+const systemColors = {
+  "长江干流": "#2989d8", "长江支流": "#2dbc80",
+  "珠江水系": "#a855c7", "黄河水系": "#daa520", "淮河水系": "#e74c3c"
+};
+const systemClass = {
+  "长江干流": "color-长江干流", "长江支流": "color-长江支流",
+  "珠江水系": "color-珠江水系", "黄河水系": "color-黄河水系",
+  "淮河水系": "color-淮河水系"
+};
+
+let map, infoWindow = null, markerList = [];
+
+function initMap() {
+  const isMobile = window.innerWidth <= 600;
+  map = new AMap.Map('map', {
+    zoom: isMobile ? 4 : 5,
+    center: [108.0, 32.0],
+    touchZoom: true,
+    dragEnable: true
+  });
+  addMarkers('all');
+}
+
+function createPopupContent(d) {
+  const colorClass = systemClass[d.system] || "color-长江干流";
+  return '<div class="popup-card">' +
+    '<div class="popup-header ' + colorClass + '">' +
+      '<h3>' + d.name + '</h3>' +
+      '<span class="tag">' + d.tag + '</span>' +
+    '</div>' +
+    '<div class="popup-body">' +
+      '<div class="info-row"><span class="label">水系</span><span class="value">' + d.system + '</span></div>' +
+      '<div class="info-row"><span class="label">位置</span><span class="value">' + d.city + ' · ' + d.location + '</span></div>' +
+      '<div class="section-title">历史沿革</div>' +
+      '<div class="desc">' + d.history + '</div>' +
+      '<div class="section-title">当前现状</div>' +
+      '<div class="desc">' + d.status + '</div>' +
+      '<div class="keywords">' + d.keywords.map(function(k) { return '<span>' + k + '</span>'; }).join('') + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function addMarkers(filter) {
+  markerList.forEach(function(m) { m.setMap(null); });
+  markerList = [];
+
+  ferryData.forEach(function(d) {
+    if (filter && filter !== 'all' && d.system !== filter) return;
+    var color = systemColors[d.system] || "#2989d8";
+
+    var marker = new AMap.Marker({
+      position: [d.lng, d.lat],
+      title: d.name,
+      content: '<div style="width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:' + color + ';border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);font-size:13px;color:#fff;">&#9978;</span></div>',
+      offset: new AMap.Pixel(-15, -30)
+    });
+
+    marker.on('click', function() {
+      if (!infoWindow) {
+        infoWindow = new AMap.InfoWindow({
+          offset: new AMap.Pixel(0, -34),
+          closeWhenClickMap: true
+        });
+      }
+      infoWindow.setContent(createPopupContent(d));
+      infoWindow.open(map, [d.lng, d.lat]);
+    });
+
+    marker.setMap(map);
+    markerList.push(marker);
+  });
+}
+
+document.querySelectorAll('#filter-bar button').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('#filter-bar button').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var f = btn.dataset.filter;
+    addMarkers(f);
+    if (f !== 'all') {
+      map.setFitView(null, false, [60, 60, 60, 60]);
+    } else {
+      map.setZoomAndCenter(window.innerWidth <= 600 ? 4 : 5, [108.0, 32.0]);
+    }
+  });
+});
+
+window.addEventListener('load', function() {
+  if (typeof AMap !== 'undefined') {
+    initMap();
+  } else {
+    document.getElementById('map').innerHTML = '<div style="padding:40px;color:red;font-size:18px;">地图加载失败，请检查网络连接</div>';
+  }
+});
+</script>
+</body>
+</html>
